@@ -11,6 +11,7 @@ ptc.setupPloneSite()
 
 import collective.favicon
 
+PACKAGE_NAME = "collective.favicon"
 
 class TestCase(ptc.PloneTestCase):
 
@@ -26,9 +27,37 @@ class TestCase(ptc.PloneTestCase):
         def tearDown(cls):
             pass
 
+class TestInstall(TestCase):
+
+    def test_install(self):
+        qi = self.portal.portal_quickinstaller
+        self.failUnless(PACKAGE_NAME in (p['id'] for p in qi.listInstallableProducts()))
+        qi.installProduct(PACKAGE_NAME)
+        self.failUnless(qi.isProductInstalled(PACKAGE_NAME))
+
+class TestControlpanel(TestCase):
+
+    def afterSetUp(self):
+        self.setRoles(('Manager',))
+        qi = self.portal.portal_quickinstaller
+        qi.installProduct(PACKAGE_NAME)
+
+    def test_has_panel(self):
+        pass
+        "collective-favicon-settings"
+
+    def test_has_recode(self):
+        pass
+
+    def test_file_widget(self):
+        pass
+
 
 def test_suite():
     return unittest.TestSuite([
+
+        unittest.makeSuite(TestInstall),
+        unittest.makeSuite(TestControlpanel),
 
         # Unit tests
         #doctestunit.DocFileSuite(
@@ -41,7 +70,7 @@ def test_suite():
 
 
         # Integration tests that use PloneTestCase
-        #ztc.ZopeDocFileSuite(
+        # ztc.ZopeDocFileSuite(
         #    'README.txt', package='collective.favicon',
         #    test_class=TestCase),
 
